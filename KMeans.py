@@ -4,13 +4,14 @@
 @author: ramon, bojana
 """
 import numpy as np
+import array as arr
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as axes3d
 from sklearn.decomposition import PCA
 
 
 def NIUs():
-    return 111111, 1111112, 1111113
+    return 1392600, 1459132, 1462731
     
 def distance(X,C):
     """@brief   Calculates the distance between each pixcel and each centroid 
@@ -58,7 +59,7 @@ class KMeans():
 ##  YOU MUST REMOVE THE REST OF THE CODE OF THIS FUNCTION
 ##  AND CHANGE FOR YOUR OWN CODE
 #######################################################
-        self.X = np.random.rand(100,5)
+        self.X = arr(X.shape[0]*X.shape[1], X.shape[2])
 
             
     def _init_options(self, options):

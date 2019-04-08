@@ -21,8 +21,8 @@ else:
     import KMeans as km
 
 student = True
-TestFolder = 'Test/'
-ImageFolder = 'Images/'
+TestFolder = '../Test/'
+ImageFolder = '../Images/'
 if not os.path.isdir(TestFolder):
     os.makedirs(TestFolder)
 
