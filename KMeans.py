@@ -4,17 +4,15 @@
 @author: ramon, bojana
 """
 import numpy as np
-import array as arr
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as axes3d
 from sklearn.decomposition import PCA
+from math import sqrt
+from scipy.spatial.distance import cdist as dist
 
-
-def NIUs():
-    return 1392600, 1459132, 1462731
     
 def distance(X,C):
-    """@brief   Calculates the distance between each pixcel and each centroid 
+    """@brief   Calculates the distance between each pixel and each centroid 
 
     @param  X  numpy array PxD 1st set of data points (usually data points)
     @param  C  numpy array KxD 2nd set of data points (usually cluster centroids points)
@@ -22,11 +20,12 @@ def distance(X,C):
     @return dist: PxK numpy array position ij is the distance between the 
     	i-th point of the first set an the j-th point of the second set
     """
-#########################################################
-##  YOU MUST REMOVE THE REST OF THE CODE OF THIS FUNCTION
-##  AND CHANGE FOR YOUR OWN CODE
-#########################################################
-    return np.random.rand(X.shape[0],C.shape[0])
+
+    C=np.array(C)
+    if len(C.shape) == 1:
+        C=[C]
+    return dist(X,C)
+
 
 class KMeans():
     
@@ -41,10 +40,6 @@ class KMeans():
         self._init_X(X)                                    # LIST data coordinates
         self._init_options(options)                        # DICT options
         self._init_rest(K)                                 # Initializes de rest of the object
-        
-#############################################################
-##  THIS FUNCTION CAN BE MODIFIED FROM THIS POINT, if needed
-#############################################################
 
         
     def _init_X(self, X):
@@ -55,11 +50,12 @@ class KMeans():
 
         sets X an as an array of data in vector form (PxD  where P=N*M and D=3 in the above example)
         """
-#######################################################
-##  YOU MUST REMOVE THE REST OF THE CODE OF THIS FUNCTION
-##  AND CHANGE FOR YOUR OWN CODE
-#######################################################
-        self.X = arr(X.shape[0]*X.shape[1], X.shape[2])
+
+        self.X = np.zeros((2,X.shape[0]))
+        if X.ndim > 2:
+            self.X=np.reshape(X,(-1,X.shape[2]))
+        else:
+            self.X=X[:]
 
             
     def _init_options(self, options):
@@ -69,6 +65,7 @@ class KMeans():
 
 			sets de options parameters
         """
+
         if options == None:
             options = {}
         if not 'km_init' in options:
@@ -83,10 +80,6 @@ class KMeans():
             options['fitting'] = 'Fisher'
 
         self.options = options
-        
-#############################################################
-##  THIS FUNCTION CAN BE MODIFIED FROM THIS POINT, if needed
-#############################################################
 
         
     def _init_rest(self, K):
@@ -94,6 +87,7 @@ class KMeans():
         
         @param  options DICT dctionary with options
         """
+
         self.K = K                                             # INT number of clusters
         if self.K>0:
             self._init_centroids()                             # LIST centroids coordinates
@@ -101,61 +95,119 @@ class KMeans():
             self.clusters = np.zeros(len(self.X))              # LIST list that assignes each element of X into a cluster
             self._cluster_points()                             # sets the first cluster assignation
         self.num_iter = 0                                      # INT current iteration
-            
-#############################################################
-##  THIS FUNCTION CAN BE MODIFIED FROM THIS POINT, if needed
-#############################################################
 
 
     def _init_centroids(self):
         """@brief Initialization of centroids
         depends on self.options['km_init']
         """
-#######################################################
-##  YOU MUST REMOVE THE REST OF THE CODE OF THIS FUNCTION
-##  AND CHANGE FOR YOUR OWN CODE
-#######################################################
-        if self.options['km_init'].lower() == 'first':
-	        self.centroids = np.random.rand(self.K,self.X.shape[1])
-        else:
-	        self.centroids = np.random.rand(self.K,self.X.shape[1])
+        if self.options['km_init'] == 'first':
+            aux = []
+            aux = np.array(aux)
+            aux = [np.append(aux, self.X[0], axis=0)]
+            aux = np.array(aux)
+
+            i=1     
+                          # Considerarem els primers pixels com a centroides
+            while (aux.shape[0]<self.K):
+                aux2=[self.X[i]]
+                if not np.array_equal(aux, aux2):
+                    aux=np.append(aux, aux2, axis=0)
+                    #print aux
+
+                i+=1
+            self.centroids = aux
+        elif self.options['km_init'] == 'random':        # Considerarem pixels aleatoris com a centroids
+            self.centroids = np.random.rand(self.K,self.X.shape[1])
+        #print aux
+        """
+        self.centroids=[]
+        self.centroids=np.array(self.centroids)
+        if self.options['km_init'] == 'first':         # Considerarem els primers pixels com a centroides
+            self.centroids = np.append(self.centroids,self.X[0], axis=0)
+            i=1
+            
+            self.centroids=np.array(self.centroids)
+            print self.K
+            while self.centroids.shape[0]==self.K:
+                for j in range(self.centroids.shape[0]):
+                    if np.array_equal(self.centroids[j],self.X[i]):
+                        self.centroids = np.append(self.centroids,self.X[j], axis=0) 
+                i+=1   
+        elif self.options['km_init'] == 'random':        # Considerarem pixels aleatoris com a centroids
+            self.centroids = np.random.rand(self.K,self.X.shape[1])
+        """
+        
         
         
     def _cluster_points(self):
         """@brief   Calculates the closest centroid of all points in X
         """
-#######################################################
-##  YOU MUST REMOVE THE REST OF THE CODE OF THIS FUNCTION
-##  AND CHANGE FOR YOUR OWN CODE
-#######################################################
-        self.clusters = np.random.randint(self.K,size=self.clusters.shape)
+        #print self.centroids
+        distances = distance(self.X, self.centroids)
+        self.clusters = np.argmin(distances, axis=1)
 
         
     def _get_centroids(self):
         """@brief   Calculates coordinates of centroids based on the coordinates 
                     of all the points assigned to the centroid
         """
-#######################################################
-##  YOU MUST REMOVE THE REST OF THE CODE OF THIS FUNCTION
-##  AND CHANGE FOR YOUR OWN CODE
-#######################################################
-        pass
+        """
+        tmpCentroids = []
+        for i in range(self.K):
+            aux = []
+            tmp = []
+            for j in range(len(self.clusters)):
+                if self.clusters[j] == i:
+                    aux.append(self.X[j])
+            if len(aux) != 0:
+                for d in range(self.centroids.shape[0]):
+                    tmp_xyz = 0
+                    for k in aux:
+                        tmp_xyz += k[d]
+                    tmp_d = tmp_xyz / len(aux)
+                    tmp.append(tmp_d)
+                tmpCentroids.append(tmp)
+            else:
+                tmpCentroids.append(self.centroids[i])
+        
+        self.old_centroids = self.centroids
+        self.centroids = np.array(tmpCentroids)
+        """
+        
+        self.old_centroids = self.centroids
+        aux = []
+        aux = np.array(aux)
+        aux2 = []
+        aux2 = np.array(aux)
+        aux2 = [aux2]
+        aux2 = np.array(aux)
+        aux_clus = self.clusters.reshape(self.clusters.shape[0],1)
+
+        for i in range(self.K):
+            #print aux_clus
+            aux=self.X[aux_clus[:,0]==i]
+            div=aux.shape[0]
+            aux=np.sum(aux, axis=0)/div
+
+
+            aux2=np.append(aux2, aux, axis=0)
+
+        self.centroids = aux2.reshape(self.old_centroids.shape[0],self.old_centroids.shape[1])
+
                 
 
     def _converges(self):
         """@brief   Checks if there is a difference between current and old centroids
         """
-#######################################################
-##  YOU MUST REMOVE THE REST OF THE CODE OF THIS FUNCTION
-##  AND CHANGE FOR YOUR OWN CODE
-#######################################################
-        return True
-        
+        return np.isclose(self.old_centroids, self.centroids, self.options['tolerance']).all()
+
     def _iterate(self, show_first_time=True):
         """@brief   One iteration of K-Means algorithm. This method should 
                     reassigne all the points from X to their closest centroids
                     and based on that, calculate the new position of centroids.
         """
+
         self.num_iter += 1
         self._cluster_points()
         self._get_centroids()
@@ -167,11 +219,13 @@ class KMeans():
         """@brief   Runs K-Means algorithm until it converges or until the number
                     of iterations is smaller than the maximum number of iterations.=
         """
+
         if self.K==0:
             self.bestK()
             return        
         
         self._iterate(True)
+        self.options['max_iter'] = np.inf
         if self.options['max_iter'] > self.num_iter:
             while not self._converges() :
                 self._iterate(False)
@@ -186,25 +240,57 @@ class KMeans():
                     information for the best K. NO need to rerun KMeans.
            @return B is the best K found.
         """
-#######################################################
-##  YOU MUST REMOVE THE REST OF THE CODE OF THIS FUNCTION
-##  AND CHANGE FOR YOUR OWN CODE
-#######################################################
-        self._init_rest(4)
-        self.run()        
-        fit = self.fitting()
-        return 4
+
+        if self.options['fitting'].lower() == 'fisher':
+            fit = 0
+            for i in range(2, 10):
+                self._init_rest(i)
+                self.run()
+                tmp_fit = self.fitting()
+                if tmp_fit < fit:
+                    break
+                else:
+                    fit = tmp_fit
+
+            return fit
+        else:
+            self._init_rest(4)
+            self.run()
+            fit = self.fitting()
+            return 4
 
         
     def fitting(self):
         """@brief  return a value describing how well the current kmeans fits the data
         """
-#######################################################
-##  YOU MUST REMOVE THE REST OF THE CODE OF THIS FUNCTION
-##  AND CHANGE FOR YOUR OWN CODE
-#######################################################
+
         if self.options['fitting'].lower() == 'fisher':
-            return np.random.rand(1)
+            within_variance = 0
+            distance_list = distance(self.X, self.centroids)
+            for K in range(self.K):
+                sum_distance_cluster = 0
+                pixels_cluster = 0
+                for pixel in range(len(self.clusters)):
+                    if self.clusters[pixel] == K:
+                        sum_distance_cluster += distance_list[pixel][K]
+                        pixels_cluster += 1
+                within_variance += sum_distance_cluster/pixels_cluster
+
+            between_variance = 0
+            center = np.array([0,0,0]).astype('float64')
+            count = 0
+            for i in range(len(self.centroids)):
+                for j in range(len(self.centroids)):
+                    if i != j:
+                        center += (self.centroids[i]+self.centroids[j])/2
+                        count += 1
+
+            center = center/count
+
+            distance_list = distance(np.array([center]), self.centroids)
+            between_variance = np.mean(distance_list)
+
+            return within_variance/between_variance
         else:
             return np.random.rand(1)
 
