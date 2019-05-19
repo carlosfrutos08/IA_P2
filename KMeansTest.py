@@ -17,33 +17,34 @@ plt.close("all")
 if __name__ == "__main__":
     import os
     print(os.path.dirname(os.path.realpath(__file__)))
-    im = io.imread('../Images/0053.jpg')
+    im = io.imread('../Images/0125.jpg')
     # plt.figure(1)
     # plt.imshow(im)
     # plt.axis('off')
     # plt.show()
     options = {'verbose': False, 'km_init': 'first'}
     k_m = km.KMeans(im, 3, options)
-    k_m.run()
-    print(k_m.centroids)
-
-    X =  np.array([[50,224,42],[82,207,277],[22,200,253],[56,285,64],[39,78,256],[62,181,92]])
-    k_m = km.KMeans(X, 2, options)
-    k_m.centroids =  np.array([[59.0,142.0,30.0],[103.0,248.0,181.0]])
-#    np.copyto(k_m.centroids, np.array([[59.0,142.0,30.0],[103.0,248.0,181.0]]))
     k_m._iterate()
-    print(k_m.centroids)
-
-    k_m = km.KMeans(X, 2, options)
-    k_m.centroids = np.array([[59.0, 142.0, 30.0], [103.0, 248.0, 181.0]])
-    #    np.copyto(k_m.centroids, np.array([[59.0,142.0,30.0],[103.0,248.0,181.0]]))
-    k_m._cluster_points()
     k_m._get_centroids()
     print(k_m.centroids)
 
-    print(k_m.centroids)
-    k_m.run()
-    print(k_m.centroids)
+#    X =  np.array([[50,224,42],[82,207,277],[22,200,253],[56,285,64],[39,78,256],[62,181,92]])
+#    k_m = km.KMeans(X, 2, options)
+#    k_m.centroids =  np.array([[59.0,142.0,30.0],[103.0,248.0,181.0]])
+##    np.copyto(k_m.centroids, np.array([[59.0,142.0,30.0],[103.0,248.0,181.0]]))
+#    k_m._iterate()
+#    print(k_m.centroids)
+#
+#    k_m = km.KMeans(X, 2, options)
+#    k_m.centroids = np.array([[59.0, 142.0, 30.0], [103.0, 248.0, 181.0]])
+#    #    np.copyto(k_m.centroids, np.array([[59.0,142.0,30.0],[103.0,248.0,181.0]]))
+#    k_m._cluster_points()
+#    k_m._get_centroids()
+#    print(k_m.centroids)
+#
+#    print(k_m.centroids)
+#    k_m.run()
+#    print(k_m.centroids)
 
 
 #    X = np.reshape(im, (-1, im.shape[2]))
